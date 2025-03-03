@@ -1,8 +1,26 @@
 ---
-- name: Test
-  hosts: localhost
-  tasks:
-    - name: Test
-      service: ansible.builtin.dnf
-        name: yum
-        enabled: yes
+- name: Ejemplo de Rulebook en Ansible
+  hosts: all
+  sources:
+    - name: event_source
+      ansible.eda.generic:
+        delay: 10
+  rules:
+    - name: Reiniciar servicio si deja de responder
+      condition: event.service_status == "down"
+      action:
+        run_playbook:
+          name: restart_service.yml
+
+    - name: Enviar alerta si el uso de CPU es alto
+      condition: event.cpu_usage > 80
+      action:
+        run_playbook:
+          name: send_alert.yml
+
+    - name: Escalar incidente si memoria es baja
+      condition: event.memory_available < 500
+      action:
+        run_playbook:
+          name: escalate_issue.yml
+
